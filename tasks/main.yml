@@ -1,0 +1,61 @@
+---
+- name: Install nftables
+  apt:
+    name: nftables
+
+- name: Copy nftables configuration files
+  copy:
+    src: nftables/
+    dest: /etc/nftables
+    mode: 0640
+    directory_mode: 0750
+    owner: root
+    group: "{{ nftables_deploy_group }}"
+  notify: Enable and reload nftables
+
+- name: Template nftables include config
+  template:
+    src: nftables.conf.j2
+    dest: /etc/nftables.conf
+    # No validate because it would break when included config is invalid
+    owner: root
+    group: root
+    mode: 0644
+  notify: Enable and reload nftables
+
+- name: Template safe reload script
+  template:
+    src: nftables-reload.j2
+    dest: /usr/local/sbin/nftables-reload
+    validate: bash -n %s
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create dropin directory
+  file:
+    path: /etc/systemd/system/nftables.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Template systemd dropin
+  template:
+    src: systemd-reload.conf.j2
+    dest: /etc/systemd/system/nftables.service.d/reload.conf
+    # No validate because there is no command for it
+    owner: root
+    group: root
+    mode: 0644
+  register: dropin
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: true
+  when: dropin.changed
+
+- name: Enable nftables
+  systemd:
+    name: nftables
+    enabled: true

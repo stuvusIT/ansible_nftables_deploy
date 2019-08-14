@@ -1,0 +1,6 @@
+#!/usr/sbin/nft -f
+
+# {{ ansible_managed }}
+
+flush ruleset
+include "/etc/nftables/nftables.conf"
