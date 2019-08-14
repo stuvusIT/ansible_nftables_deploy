@@ -1,0 +1,4 @@
+---
+- name: Enable and reload nftables
+  # Not using the systemd module because it doesn't support reload-or-restart
+  command: systemctl reload-or-restart nftables.service
