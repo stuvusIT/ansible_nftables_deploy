@@ -1,4 +1,10 @@
 ---
-- name: Enable and reload nftables
+- name: Enable and reload nftables # noqa 303
   # Not using the systemd module because it doesn't support reload-or-restart
+  # May not properly silence linting based on version:
+  # https://github.com/ansible/ansible-lint/issues/543
   command: systemctl reload-or-restart nftables.service
+
+- name: Systemd daemon-reload
+  systemd:
+    daemon_reload: yes
