@@ -1,6 +1,6 @@
 ---
 - name: Install nftables
-  apt:
+  package:
     name: nftables
 
 - name: Copy nftables configuration files
@@ -48,12 +48,7 @@
     owner: root
     group: root
     mode: 0644
-  register: dropin
-
-- name: Reload systemd
-  systemd:
-    daemon_reload: true
-  when: dropin.changed
+  notify: Systemd daemon-reload
 
 - name: Enable nftables
   systemd:
